@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RutinaFit — Tu semana, cargada</title>
-<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0B0B0D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -50,6 +49,15 @@
   .logo-mark{width:26px;height:26px;background:var(--volt);border-radius:50%;position:relative;flex-shrink:0;}
   .logo-mark::after{content:"";position:absolute;inset:8px;background:var(--void);border-radius:50%;}
   .logo-text{font-family:'Anton',sans-serif;font-size:20px;letter-spacing:1px;text-transform:uppercase;}
+  .nav-actions{display:flex;align-items:center;gap:10px;}
+  #refreshBtn{
+    background:transparent;border:1px solid var(--steel);color:var(--chalk);
+    width:38px;height:38px;border-radius:50%;cursor:pointer;
+    font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;
+    transition:all .2s ease;flex-shrink:0;
+  }
+  #refreshBtn:hover{border-color:var(--volt);color:var(--volt);transform:rotate(90deg);}
+  #refreshBtn:active{transform:rotate(180deg) scale(0.92);}
   #installBtn{
     background:transparent;border:1px solid var(--steel);color:var(--chalk);
     padding:10px 18px;font-family:'Space Mono',monospace;font-size:12px;
@@ -115,6 +123,8 @@
     cursor:pointer;
     transition:all .25s ease;
     position:relative;
+    padding:8px;
+    box-sizing:border-box;
   }
   .plate:hover{border-color:var(--volt);transform:translateY(-4px);}
   .plate.active{
@@ -303,8 +313,8 @@
   .modal-btn-secondary:hover{color:var(--chalk);border-color:var(--volt);transform:scale(1.06);}
 
   @media (max-width:720px){
-    .plates{flex-wrap:wrap;}
-    .plate{flex:0 0 calc(25% - 6px);max-width:none;}
+    .plates{flex-wrap:wrap;align-items:flex-start;}
+    .plate{flex:0 0 calc(25% - 6px);max-width:none;align-self:flex-start;}
     .bar-line{display:none;}
   }
 
@@ -514,7 +524,10 @@
     <div class="logo-mark"></div>
     <div class="logo-text">RutinaFit</div>
   </div>
-  <button id="installBtn">↓ Instalar app</button>
+  <div class="nav-actions">
+    <button id="refreshBtn" title="Recargar la app">↻</button>
+    <button id="installBtn">↓ Instalar app</button>
+  </div>
 </nav>
 
 <div class="hero">
@@ -1466,12 +1479,13 @@ document.getElementById('installBtn').addEventListener('click', async () => {
   document.getElementById('installBtn').style.display = 'none';
 });
 
-// Registrar service worker para que funcione instalada/offline una vez publicada en un hosting real
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
+// Nota: al ser un solo archivo HTML, la instalación como app se hace
+// desde el menú del navegador ("Agregar a pantalla de inicio" / "Instalar app").
+
+// Botón de recargar (por si la app se traba). No borra nada: los datos viven en localStorage.
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  location.reload();
+});
 
 // Init
 renderPlates();
@@ -1484,4 +1498,3 @@ maybeNotifyToday();
 
 </body>
 </html>
-
