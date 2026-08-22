@@ -50,19 +50,11 @@
   .logo-mark::after{content:"";position:absolute;inset:8px;background:var(--void);border-radius:50%;}
   .logo-text{font-family:'Anton',sans-serif;font-size:20px;letter-spacing:1px;text-transform:uppercase;}
   .nav-actions{display:flex;align-items:center;gap:10px;}
-  #refreshBtn{
-    background:transparent;border:1px solid var(--steel);color:var(--chalk);
-    width:38px;height:38px;border-radius:50%;cursor:pointer;
-    font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;
-    transition:all .2s ease;flex-shrink:0;
-  }
-  #refreshBtn:hover{border-color:var(--volt);color:var(--volt);transform:rotate(90deg);}
-  #refreshBtn:active{transform:rotate(180deg) scale(0.92);}
   #installBtn{
     background:transparent;border:1px solid var(--steel);color:var(--chalk);
     padding:10px 18px;font-family:'Space Mono',monospace;font-size:12px;
     text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:var(--radius);
-    transition:all .2s ease;display:none;
+    transition:all .2s ease;display:flex;align-items:center;gap:6px;
   }
   #installBtn:hover{border-color:var(--volt);color:var(--volt);}
 
@@ -525,7 +517,6 @@
     <div class="logo-text">RutinaFit</div>
   </div>
   <div class="nav-actions">
-    <button id="refreshBtn" title="Recargar la app">↻</button>
     <button id="installBtn">↓ Instalar app</button>
   </div>
 </nav>
@@ -1466,25 +1457,38 @@ renderAllProgreso();
 
 // PWA install prompt
 let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById('installBtn').style.display = 'block';
 });
-document.getElementById('installBtn').addEventListener('click', async () => {
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+
+// Si la app ya quedó instalada, ocultamos el botón
+window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  document.getElementById('installBtn').style.display = 'none';
+  installBtn.style.display = 'none';
 });
 
-// Nota: al ser un solo archivo HTML, la instalación como app se hace
-// desde el menú del navegador ("Agregar a pantalla de inicio" / "Instalar app").
+// Si ya se abrió como app instalada (standalone), no mostramos el botón
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+  installBtn.style.display = 'none';
+}
 
-// Botón de recargar (por si la app se traba). No borra nada: los datos viven en localStorage.
-document.getElementById('refreshBtn').addEventListener('click', () => {
-  location.reload();
+installBtn.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  } else {
+    // El navegador no soporta el prompt automático (ej. iPhone) o aún no se activó.
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      alert('Para instalar en iPhone: toca el botón de compartir (⬆️) en Safari y luego "Agregar a pantalla de inicio".');
+    } else {
+      alert('Para instalar: abre el menú (⋮) de tu navegador y elige "Instalar app" o "Agregar a pantalla de inicio".');
+    }
+  }
 });
 
 // Init
