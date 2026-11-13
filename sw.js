@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rutinafit-v2';
+const CACHE_NAME = 'rutinafit-v3';
 const FILES_TO_CACHE = [
   './index.html',
   './manifest.json'
@@ -37,5 +37,35 @@ self.addEventListener('fetch', (event) => {
         return res;
       })
       .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+  );
+});
+
+// Aviso push: llega aunque la app esté cerrada.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (e) {}
+  const title = data.title || 'RutinaFit';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body || '',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      tag: 'rutinafit-hoy',
+      data: { url: data.url || './' }
+    })
+  );
+});
+
+// Al tocar el aviso, abre la app (o la trae al frente si ya estaba abierta).
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || './';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if ('focus' in c) return c.focus();
+      }
+      return self.clients.openWindow(target);
+    })
   );
 });
