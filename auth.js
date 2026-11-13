@@ -316,9 +316,78 @@
       var seguir = confirm('Hay cambios que todavía no se guardaron en la nube (¿sin internet?). Si sales ahora se pierden. ¿Salir de todos modos?');
       if (!seguir) return;
     }
+    await dropPush();
     try { await sb.auth.signOut(); } catch (e) {}
     SYNC_KEYS.concat([DIRTY_KEY, OWNER_KEY]).forEach(function (k) { localStorage.removeItem(k); });
     location.reload();
+  }
+
+  /* ---------- Notificaciones push (llegan con la app cerrada) ---------- */
+  var VAPID_PUBLIC = 'BPiHwdlZmBPBS59fyk4mHCDlnpnixz-iyoEw_f2SancF6F1DnGNh3otYq7FhP9dosJCm_z2QOM7kgsxmCMVwOUI';
+  var NOTIF_KEY = 'rutinafit_notif_enabled';
+
+  function urlB64ToUint8(b64) {
+    var pad = '='.repeat((4 - (b64.length % 4)) % 4);
+    var raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function pushSupported() {
+    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  }
+
+  // Registra este dispositivo en la nube para recibir avisos con la app cerrada.
+  async function ensurePush() {
+    if (!session || !pushSupported()) return;
+    if (Notification.permission !== 'granted') return;
+    if (localStorage.getItem(NOTIF_KEY) !== 'true') return;
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64ToUint8(VAPID_PUBLIC)
+        });
+      }
+      var j = sub.toJSON();
+      var res = await sb.from('push_subscriptions').upsert(
+        { user_id: session.user.id, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth },
+        { onConflict: 'endpoint' }
+      );
+      if (res.error) console.warn('RutinaFit: no se pudo guardar la suscripción', res.error.message);
+    } catch (e) {
+      console.warn('RutinaFit: no se pudo activar el push', e);
+    }
+  }
+
+  // Quita este dispositivo de la lista de avisos.
+  async function dropPush() {
+    if (!pushSupported()) return;
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        var endpoint = sub.endpoint;
+        await sub.unsubscribe();
+        if (session) await sb.from('push_subscriptions').delete().eq('endpoint', endpoint);
+      }
+    } catch (e) { /* no pasa nada */ }
+  }
+
+  // Cuando tocas "Activar avisos", además del aviso local registramos el push.
+  function hookNotifButton() {
+    var btn = document.getElementById('notifBtn');
+    if (!btn || btn.getAttribute('data-push-hooked')) return;
+    btn.setAttribute('data-push-hooked', '1');
+    btn.addEventListener('click', async function () {
+      try { await Notification.requestPermission(); } catch (e) {}
+      setTimeout(function () {
+        if (localStorage.getItem(NOTIF_KEY) === 'true') ensurePush(); else dropPush();
+      }, 400);
+    });
   }
 
   /* ---------- Arranque ---------- */
@@ -338,8 +407,10 @@
     if (!owner) origSet.call(localStorage, OWNER_KEY, session.user.id);
 
     addLogoutButton();
+    hookNotifButton();
     await pull();
     reveal();
+    ensurePush();
   }
 
   function onReady(fn) {
