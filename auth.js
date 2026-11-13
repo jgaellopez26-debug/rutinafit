@@ -50,7 +50,23 @@
     '.auth-link:hover{color:var(--volt)}' +
     '#logoutBtn{background:transparent;border:1px solid var(--steel);color:var(--chalk);padding:10px 18px;font-family:"Space Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:var(--radius);transition:all .2s ease}' +
     '#logoutBtn:hover{border-color:var(--blood);color:var(--blood)}' +
-    '@media (max-width:600px){.auth-card{padding:24px}}';
+    '.cfg-card{margin-top:24px;background:var(--panel);border:1px solid #262729;border-radius:8px;padding:32px}' +
+    '.cfg-field{margin-bottom:18px}' +
+    '.cfg-field label{display:block;font-size:13px;color:var(--chalk-dim);margin-bottom:6px}' +
+    '.cfg-field input[type=text],.cfg-field input[type=time]{background:var(--panel-2);border:1px solid #2E2F33;color:var(--chalk);padding:12px 14px;border-radius:var(--radius);font-family:"Work Sans",sans-serif;font-size:15px;color-scheme:dark}' +
+    '.cfg-field input[type=text]{width:100%}' +
+    '.cfg-field input:focus{outline:none;border-color:var(--volt)}' +
+    '.cfg-help{font-size:12px;color:var(--chalk-dim);margin:-8px 0 18px;line-height:1.5}' +
+    '.cfg-hora{display:flex;gap:8px;align-items:center;margin-bottom:8px}' +
+    '.cfg-hora button,#cfgAddHora{background:transparent;border:1px solid var(--steel);color:var(--chalk);padding:10px 14px;border-radius:var(--radius);cursor:pointer;font-family:"Work Sans",sans-serif;font-size:13px}' +
+    '.cfg-hora button:hover,#cfgAddHora:hover{border-color:var(--volt);color:var(--volt)}' +
+    '.cfg-days{display:flex;flex-wrap:wrap;gap:8px}' +
+    '.cfg-days button{background:var(--panel-2);border:1px solid #2E2F33;color:var(--chalk-dim);padding:9px 14px;border-radius:20px;cursor:pointer;font-family:"Work Sans",sans-serif;font-size:13px}' +
+    '.cfg-days button.on{background:var(--volt);border-color:var(--volt);color:var(--volt-text);font-weight:600}' +
+    '.cfg-check{display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:18px;cursor:pointer}' +
+    '.cfg-preview{background:var(--panel-2);border:1px solid #262729;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;font-size:14px;line-height:1.5}' +
+    '.cfg-preview strong{display:block;margin-bottom:4px}' +
+    '@media (max-width:600px){.auth-card,.cfg-card{padding:24px}}';
   document.head.appendChild(style);
   document.documentElement.classList.add('auth-pending');
   function reveal() { document.documentElement.classList.remove('auth-pending'); }
@@ -322,6 +338,170 @@
     location.reload();
   }
 
+  /* ---------- Personalizar el aviso (texto, horas y días) ---------- */
+  var DIAS_ABBR = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  var DIAS_NOMBRE = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  var cfg = { titulo: 'Hoy toca: {tipo} 💪', cuerpo: '{ejercicios}', horas: ['07:00'], dias: [0, 1, 2, 3, 4, 5, 6], saltar: false };
+
+  function renderTemplate(t, v) {
+    return t.replace(/\{tipo\}/g, v.tipo).replace(/\{ejercicios\}/g, v.ejercicios).replace(/\{dia\}/g, v.dia);
+  }
+
+  function previewVars() {
+    var idx = (new Date().getDay() + 6) % 7;
+    var v = { tipo: 'Pecho', ejercicios: 'Press banca · Aperturas · Fondos', dia: DIAS_NOMBRE[idx] };
+    try {
+      var week = JSON.parse(localStorage.getItem('rutinafit_week_v1') || 'null');
+      var d = week && week[DIAS_NOMBRE[idx]];
+      if (d && d.tipo) {
+        v.tipo = d.tipo;
+        v.ejercicios = (d.ejercicios || []).map(function (e) {
+          return typeof e === 'string' ? e : e.name + (e.detail ? ' — ' + e.detail : '');
+        }).join(' · ') || 'Abre la app y revisa tu plan.';
+      }
+    } catch (e) {}
+    return v;
+  }
+
+  function updatePreview() {
+    var box = $('cfgPreview');
+    if (!box) return;
+    var v = previewVars();
+    var t = document.createElement('strong');
+    t.textContent = renderTemplate($('cfgTitulo').value || 'RutinaFit', v);
+    box.textContent = '';
+    box.appendChild(t);
+    box.appendChild(document.createTextNode(renderTemplate($('cfgCuerpo').value, v)));
+  }
+
+  function cfgMsg(text, type) {
+    var el = $('cfgMsg');
+    if (!el) return;
+    el.textContent = text || '';
+    el.className = 'auth-msg' + (type ? ' ' + type : '');
+  }
+
+  function horaRow(value) {
+    var row = document.createElement('div');
+    row.className = 'cfg-hora';
+    row.innerHTML = '<input type="time" step="300" value="' + value + '"><button type="button">Quitar</button>';
+    row.querySelector('button').addEventListener('click', function () {
+      if ($('cfgHoras').children.length > 1) row.remove();
+    });
+    return row;
+  }
+
+  function fillPanel() {
+    if (!$('notifSettings')) return;
+    $('cfgTitulo').value = cfg.titulo;
+    $('cfgCuerpo').value = cfg.cuerpo;
+    $('cfgSaltar').checked = !!cfg.saltar;
+    $('cfgHoras').innerHTML = '';
+    cfg.horas.forEach(function (h) { $('cfgHoras').appendChild(horaRow(h)); });
+    $('cfgDias').querySelectorAll('button').forEach(function (b, i) {
+      b.classList.toggle('on', cfg.dias.indexOf(i) !== -1);
+    });
+    updatePreview();
+  }
+
+  function buildSettingsPanel() {
+    if ($('notifSettings')) return;
+    var anchor = document.querySelector('#hoy .hoy-card');
+    if (!anchor) return;
+    var card = document.createElement('div');
+    card.id = 'notifSettings';
+    card.className = 'cfg-card';
+    card.innerHTML =
+      '<h3 class="card-title">Personaliza tu aviso</h3>' +
+      '<div class="cfg-field"><label for="cfgTitulo">Título</label><input type="text" id="cfgTitulo" maxlength="60"></div>' +
+      '<div class="cfg-field"><label for="cfgCuerpo">Mensaje</label><input type="text" id="cfgCuerpo" maxlength="140"></div>' +
+      '<p class="cfg-help">Puedes usar {tipo} (tu tipo de día), {ejercicios} (la lista del día) y {dia}.</p>' +
+      '<div class="cfg-field"><label>Horas del aviso (te avisa a cada hora que agregues)</label><div id="cfgHoras"></div>' +
+        '<button type="button" id="cfgAddHora">Agregar otra hora</button></div>' +
+      '<div class="cfg-field"><label>Días en que avisa</label><div class="cfg-days" id="cfgDias"></div></div>' +
+      '<label class="cfg-check"><input type="checkbox" id="cfgSaltar"> No avisar si ya marqué que fui al gym hoy</label>' +
+      '<div class="cfg-preview" id="cfgPreview"></div>' +
+      '<button type="button" class="btn-primary" id="cfgSave">Guardar aviso</button>' +
+      '<div class="auth-msg" id="cfgMsg" role="status" style="margin-top:14px"></div>';
+    anchor.parentNode.insertBefore(card, anchor.nextSibling);
+
+    DIAS_ABBR.forEach(function (d) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = d;
+      b.addEventListener('click', function () { b.classList.toggle('on'); });
+      $('cfgDias').appendChild(b);
+    });
+    $('cfgAddHora').addEventListener('click', function () {
+      if ($('cfgHoras').children.length >= 4) { cfgMsg('Máximo 4 horas al día.', 'err'); return; }
+      $('cfgHoras').appendChild(horaRow('19:00'));
+    });
+    $('cfgTitulo').addEventListener('input', updatePreview);
+    $('cfgCuerpo').addEventListener('input', updatePreview);
+    $('cfgSave').addEventListener('click', saveConfig);
+    fillPanel();
+  }
+
+  async function loadConfig() {
+    try {
+      var res = await sb.from('notif_config').select('*').maybeSingle();
+      if (res.data) {
+        cfg = {
+          titulo: res.data.titulo,
+          cuerpo: res.data.cuerpo,
+          horas: res.data.horas && res.data.horas.length ? res.data.horas : ['07:00'],
+          dias: res.data.dias && res.data.dias.length ? res.data.dias : [0, 1, 2, 3, 4, 5, 6],
+          saltar: res.data.saltar_si_asistio
+        };
+      }
+    } catch (e) { /* se queda con los valores por defecto */ }
+    fillPanel();
+  }
+
+  async function saveConfig() {
+    if (!session) return;
+    var horas = Array.prototype.map.call($('cfgHoras').querySelectorAll('input'), function (i) { return i.value; })
+      .filter(function (h) { return /^\d{2}:\d{2}$/.test(h); })
+      .map(function (h) {
+        var p = h.split(':');
+        var m = Math.floor(parseInt(p[1], 10) / 5) * 5; // los avisos salen cada 5 minutos
+        return p[0] + ':' + (m < 10 ? '0' : '') + m;
+      });
+    horas = horas.filter(function (h, i) { return horas.indexOf(h) === i; }).sort();
+    var dias = [];
+    $('cfgDias').querySelectorAll('button').forEach(function (b, i) { if (b.classList.contains('on')) dias.push(i); });
+
+    if (!horas.length) { cfgMsg('Agrega al menos una hora.', 'err'); return; }
+    if (!dias.length) { cfgMsg('Elige al menos un día.', 'err'); return; }
+
+    var btn = $('cfgSave');
+    btn.disabled = true;
+    cfgMsg('');
+    try {
+      var res = await sb.from('notif_config').upsert({
+        user_id: session.user.id,
+        activo: true,
+        titulo: $('cfgTitulo').value.trim() || 'RutinaFit',
+        cuerpo: $('cfgCuerpo').value.trim(),
+        horas: horas,
+        dias: dias,
+        saltar_si_asistio: $('cfgSaltar').checked,
+        zona: (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'America/Mexico_City',
+        actualizada_en: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (res.error) { cfgMsg('No se pudo guardar. Intenta de nuevo.', 'err'); return; }
+      cfg = { titulo: $('cfgTitulo').value.trim() || 'RutinaFit', cuerpo: $('cfgCuerpo').value.trim(), horas: horas, dias: dias, saltar: $('cfgSaltar').checked };
+      fillPanel();
+      var extra = (pushSupported() && Notification.permission !== 'granted')
+        ? ' Falta tocar «Activar avisos» arriba para recibirlos en este celular.' : '';
+      cfgMsg('Guardado.' + extra, 'ok');
+    } catch (e) {
+      cfgMsg('No hay conexión. Intenta de nuevo.', 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   /* ---------- Notificaciones push (llegan con la app cerrada) ---------- */
   var VAPID_PUBLIC = 'BPiHwdlZmBPBS59fyk4mHCDlnpnixz-iyoEw_f2SancF6F1DnGNh3otYq7FhP9dosJCm_z2QOM7kgsxmCMVwOUI';
   var NOTIF_KEY = 'rutinafit_notif_enabled';
@@ -408,9 +588,11 @@
 
     addLogoutButton();
     hookNotifButton();
+    buildSettingsPanel();
     await pull();
     reveal();
     ensurePush();
+    loadConfig();
   }
 
   function onReady(fn) {
