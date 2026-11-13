@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rutinafit-v1';
+const CACHE_NAME = 'rutinafit-v2';
 const FILES_TO_CACHE = [
   './index.html',
   './manifest.json'
@@ -20,8 +20,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Primero busca la versión nueva en internet; si no hay conexión, usa la guardada.
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // Supabase, fuentes y CDN van directo
+
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(req)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
   );
 });
