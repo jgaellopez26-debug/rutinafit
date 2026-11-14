@@ -622,5 +622,10 @@
       if (isRecovery) { showAuth('recovery'); return; }
       if (session) start(); else showAuth('login');
     }).catch(function () { showAuth('login'); });
+     const FILES_TO_CACHE = [
+  './index.html',
+  './auth.js',
+  './manifest.json'
+];
   });
 })();
