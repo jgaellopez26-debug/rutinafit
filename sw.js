@@ -1,6 +1,7 @@
 const CACHE_NAME = 'rutinafit-v3';
 const FILES_TO_CACHE = [
   './index.html',
+  './auth.js',
   './manifest.json'
 ];
 
@@ -65,11 +66,7 @@ self.addEventListener('notificationclick', (event) => {
       for (const c of list) {
         if ('focus' in c) return c.focus();
       }
-      return self.clients.openWindow(target);
-           const FILES_TO_CACHE = [
-  './index.html',
-  './auth.js',
-  './manifest.json'
+      return self.clients.openWindow(target);3
 ];
     })
   );
