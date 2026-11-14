@@ -1,4 +1,4 @@
-/* RutinaFit — inicio de sesión y sincronización con Supabase
+e/* RutinaFit — inicio de sesión y sincronización con Supabase
    Va junto a index.html. No toca tu código: guarda en la nube lo que la
    página ya guarda en localStorage (rutinas, asistencia y peso). */
 (function () {
@@ -622,10 +622,6 @@
       if (isRecovery) { showAuth('recovery'); return; }
       if (session) start(); else showAuth('login');
     }).catch(function () { showAuth('login'); });
-     const FILES_TO_CACHE = [
-  './index.html',
-  './auth.js',
-  './manifest.json'
 ];
   });
 })();
