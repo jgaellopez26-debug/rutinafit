@@ -66,6 +66,11 @@ self.addEventListener('notificationclick', (event) => {
         if ('focus' in c) return c.focus();
       }
       return self.clients.openWindow(target);
+           const FILES_TO_CACHE = [
+  './index.html',
+  './auth.js',
+  './manifest.json'
+];
     })
   );
 });
