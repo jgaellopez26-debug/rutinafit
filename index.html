@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101214">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <title>RutinaFit</title>
+</head>
+<body>
+  <div id="login" hidden>
+    <div class="login tarjeta__caja">
+      <img src="icon-192.png" alt="RutinaFit" class="login__logo">
+      <h1>RutinaFit</h1>
+      <p class="gris">Inicia sesion para guardar tus rutinas en la nube</p>
+
+      <input type="email" id="login-correo" placeholder="correo" autocomplete="email">
+      <input type="password" id="login-clave" placeholder="Contraseña(minimo 6 caracteres)" autocomplete="current-password">
+
+      <button id="login-entrar">Iniciar sesion</button>
+      <button class="contorno" id="login-crear">Crear cuenta</button>
+
+      <p class="login-mensaje" id="login-mensaje"></p>
+    </div>
+  </div>
+    <header class="barra">
+  <h2 id="titulo-barra">Inicio</h2>
+  <div class="barra__acciones">
+    <button class="barra__btn" id="btn-campana">🔔</button>
+    <div class="avatar">G</div>
+  </div>
+</header>
+
+  <main>
+
+    <!-- INICIO -->
+     <section id="inicio" class="activa">
+  <h1 class="hola">¡Hola, <span class="nombre">Gamatry</span>!</h1>
+  <p class="subtitulo">Es momento de superar tus límites.</p>
+  <p class="frase">“La disciplina de hoy, es el cuerpo fuerte de mañana.”</p>
+
+  <div class="tres">
+    <div class="tarjeta">
+      <p class="etiqueta-t">📅 Tu semana</p>
+      <div class="semana">
+        <div class="anillo"><span>4 / 5</span></div>
+        <p class="gris">entrenamientos</p>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <p class="etiqueta-t">🗓️ Próximo entrenamiento</p>
+      <h3>Pecho + Tríceps</h3>
+      <p class="gris">Hoy</p>
+    </div>
+
+    <div class="tarjeta">
+      <p class="etiqueta-t">⏱️ Tiempo entrenado</p>
+      <h3>2h 35min</h3>
+      <p class="gris">esta semana</p>
+    </div>
+  </div>
+
+  <div class="tarjeta racha">
+    <div class="racha__info">
+      <span class="racha__fuego">🔥</span>
+      <div>
+        <p class="gris">Racha de constancia</p>
+        <h3>7 días</h3>
+      </div>
+    </div>
+    <button>▶ Comenzar entrenamiento</button>
+  </div>
+
+  <div class="tarjeta banner">🏆 ¡Sigue así! Estás más cerca de tus objetivos.</div>
+</section>
+
+    <section id="rutinas">
+  <h1>Tu semana</h1>
+
+  <div class="dias">
+    <button class="dia-btn"><span>Lun</span><small></small></button>
+    <button class="dia-btn"><span>Mar</span><small></small></button>
+    <button class="dia-btn"><span>Mié</span><small></small></button>
+    <button class="dia-btn"><span>Jue</span><small></small></button>
+    <button class="dia-btn"><span>Vie</span><small></small></button>
+    <button class="dia-btn"><span>Sáb</span><small></small></button>
+    <button class="dia-btn"><span>Dom</span><small></small></button>
+  </div>
+
+  <div class="tarjeta" id="detalle"></div>
+  <div class="tarjeta" id="editor" hidden>
+  <h2 id="editor-titulo">Editar rutina</h2>
+
+  <label>Nombre de la rutina</label>
+  <input type="text" id="ed-nombre" placeholder="Ej. Espalda y Bíceps">
+
+  <label>Grupo muscular (se ve en el botón del día)</label>
+  <input type="text" id="ed-grupo" placeholder="Ej. Espalda">
+
+  <p class="etiqueta-t">EJERCICIOS</p>
+  <div id="ed-lista"></div>
+
+  <button class="contorno" id="ed-agregar">+ Agregar ejercicio</button>
+
+  <div class="acciones">
+    <button id="ed-guardar">Guardar</button>
+    <button class="contorno" id="ed-cancelar">Cancelar</button>
+    <button class="peligro" id="ed-eliminar">Eliminar rutina</button>
+  </div>
+</div>
+</section>
+
+        <!-- ENTRENAR -->
+    <section id="entrenar">
+  <h1>Entrenar</h1>
+  <p class="subtitulo" id="entrenar-rutina">—</p>
+
+  <div id="entrenar-lista"></div>
+
+  <div class="tarjeta cronometro">
+    <p class="etiqueta-t">DESCANSO</p>
+    <p id="tiempo">01:00</p>
+    <button id="btn-descanso">Iniciar descanso</button>
+  </div>
+
+  <button id="btn-terminar">Terminar entrenamiento</button>
+</section>
+
+    <section id="progreso">
+  <div class="progreso-top">
+    <select id="rango">
+      <option>Últimos 7 días</option>
+      <option selected>Últimos 30 días</option>
+      <option>Últimos 90 días</option>
+    </select>
+  </div>
+
+  <div class="fila fila--dos">
+    <div class="tarjeta stat">
+      <div>
+        <p class="etiqueta-t">🗓️ Entrenamientos totales</p>
+        <h3 class="grande">16</h3>
+        <p class="subida">▲ +14%</p>
+      </div>
+      <div class="mini barras" id="mini-barras"></div>
+    </div>
+
+    <div class="tarjeta stat">
+      <div>
+        <p class="etiqueta-t">⏱️ Tiempo entrenado</p>
+        <h3 class="grande">12.5 h</h3>
+        <p class="subida">▲ +20%</p>
+      </div>
+      <div class="mini" id="mini-linea"></div>
+    </div>
+  </div>
+
+  <div class="fila fila--ancha">
+    <div class="tarjeta">
+      <p class="etiqueta-t">Tu evolución de peso (press banca)</p>
+      <div id="grafica-peso"></div>
+    </div>
+
+    <div class="tarjeta">
+      <p class="etiqueta-t">🏆 Récords personales</p>
+      <div class="record"><span>Press de banca</span><strong>100 kg</strong></div>
+      <div class="record"><span>Sentadilla</span><strong>140 kg</strong></div>
+      <div class="record"><span>Peso muerto</span><strong>160 kg</strong></div>
+    </div>
+  </div>
+
+  <div class="fila fila--ancha">
+    <div class="tarjeta">
+      <p class="etiqueta-t">Calendario de actividad</p>
+      <div class="calendario" id="calendario"></div>
+    </div>
+
+    <div class="tarjeta">
+      <p class="etiqueta-t">Tus logros</p>
+      <div class="logro">
+        <span class="logro__icono">🛡️</span>
+        <div>
+          <h3>Constante</h3>
+          <p class="gris">Entrena 7 días seguidos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- PERFIL -->
+    <section id="perfil">
+      <h1>Perfil</h1>
+      <div class="tarjeta">
+        <p class="etiqueta-t">Cuenta</p>
+        <div class="tarjeta">
+          <p class="etiqueta-t">NOTIFICACIONES</p>
+          <p class="gris" id="push-estado">Recibe un aviso para que no se te olvide entrenar</p>
+          <button id="btn-push">🔔Activar Notificaciones</button>
+        </div> 
+        <p id="perfil-correo">-</p>
+        <button class="peligro" id="btn-salir">Cerrar sesion</button>
+      </div>
+    </section>
+    
+    </main>
+
+  <!-- MENÚ -->
+  <nav class="menu">
+  <img src="icon-192.png" alt="RutinaFit" class="menu__logo">
+
+  <a href="#inicio" class="activo" data-nombre="Inicio">
+    <span class="icono">🏠</span>
+    <span class="texto">Inicio</span>
+  </a>
+  <a href="#rutinas" data-nombre="Rutinas">
+    <span class="icono">📋</span>
+    <span class="texto">Rutinas</span>
+  </a>
+  <a href="#entrenar" data-nombre="Entrenar">
+    <span class="icono">🏋️</span>
+    <span class="texto">Entrenar</span>
+  </a>
+  <a href="#progreso" data-nombre="Progreso">
+    <span class="icono">📈</span>
+    <span class="texto">Progreso</span>
+  </a>
+
+  <div class="menu__racha" data-nombre="Tu racha">
+    <span class="icono">👑</span>
+    <div class="texto">
+      <p>Tu racha</p>
+      <strong>7 días</strong>
+    </div>
+  </div>
+
+  <a href="#perfil" data-nombre="Perfil">
+    <span class="icono">👤</span>
+    <span class="texto">Perfil</span>
+  </a>
+</nav>
+
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
+  <script src="push.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</body>
+</html>
