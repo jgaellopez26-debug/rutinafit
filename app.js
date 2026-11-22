@@ -60,24 +60,7 @@ botonDescanso.addEventListener("click", function () {
 // =====================================================
 // 3. RUTINAS
 // =====================================================
-const rutinasPorDefecto = [
-  null,
-  {
-    nombre: "Espalda y Bíceps",
-    grupo: "Espalda",
-    ejercicios: [
-      { nombre: "Dominadas", series: "4 x 8–12" },
-      { nombre: "Remo con barra", series: "4 x 8–12" },
-      { nombre: "Jalón al pecho", series: "3 x 10–12" },
-      { nombre: "Curl con barra", series: "3 x 10–12" }
-    ]
-  },
-  null,
-  null,
-  null,
-  null,
-  null
-];
+const rutinasPorDefecto = [null, null, null, null, null, null, null];
 
 const rutinas = JSON.parse(localStorage.getItem("rutinas")) || rutinasPorDefecto;
 const nombresDias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -554,6 +537,7 @@ function dibujarCalendario() {
 }
 
 function dibujarProgreso() {
+  dibujarResumen();
   const dias = Number(selRango.value);
   const actuales = sesionesEntre(0, dias);
   const anteriores = sesionesEntre(dias, dias * 2);
@@ -746,7 +730,41 @@ dibujarProgreso();
 // =====================================================
 // 5. INICIO: la rutina que toca hoy
 // =====================================================
+function dibujarResumen() {
+  // Fecha del lunes de esta semana
+  const lunes = new Date();
+  lunes.setDate(lunes.getDate() - hoy);
+  const desde = textoFecha(lunes);
+  const hasta = textoFecha(new Date());
+
+  const diasEntrenados = {};
+  let minutos = 0;
+
+  sesiones.forEach(function (s) {
+    if (s.fecha >= desde && s.fecha <= hasta) {
+      diasEntrenados[s.fecha] = true;
+      minutos += s.minutos;
+    }
+  });
+
+  const hechos = Object.keys(diasEntrenados).length;
+  const planeados = rutinas.filter(function (r) {
+    return r !== null;
+  }).length;
+  const porcentaje = planeados === 0 ? 0 : Math.min(100, Math.round((hechos / planeados) * 100));
+
+  document.getElementById("semana-texto").textContent = hechos + " / " + planeados;
+  document.getElementById("anillo-semana").style.setProperty("--porcentaje", porcentaje);
+  document.getElementById("semana-tiempo").textContent = formatoTiempo(minutos);
+
+  const racha = calcularRacha();
+  const textoRacha = racha + (racha === 1 ? " día" : " días");
+  document.getElementById("inicio-racha").textContent = textoRacha;
+  document.getElementById("menu-racha").textContent = textoRacha;
+}
+
 function dibujarInicio() {
+  dibujarResumen();
   const titulo = document.getElementById("inicio-rutina");
   const detalleDia = document.getElementById("inicio-dia");
   const subtituloEntrenar = document.getElementById("entrenar-rutina");
@@ -942,4 +960,11 @@ if (btnComenzar !== null) {
   btnComenzar.addEventListener("click", function () {
     document.querySelector('.menu a[href="#entrenar"]').click();
   });
+}
+
+// =====================================================
+// 7. SERVICE WORKER (para poder instalar la app)
+// =====================================================
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
 }
