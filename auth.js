@@ -12,12 +12,27 @@ const loginClave = document.getElementById("login-clave");
 const loginMensaje = document.getElementById("login-mensaje");
 const perfilCorreo = document.getElementById("perfil-correo");
 
+const vistaEntrar = document.getElementById("vista-entrar");
+const vistaCrear = document.getElementById("vista-crear");
+const regCorreo = document.getElementById("reg-correo");
+const regClave = document.getElementById("reg-clave");
+const regClave2 = document.getElementById("reg-clave2");
+const regMensaje = document.getElementById("reg-mensaje");
+
 let usuario = null;
 let temporizadorSubida = null;
 
-function mostrarMensaje(texto, esExito) {
-  loginMensaje.textContent = texto;
-  loginMensaje.classList.toggle("ok", esExito === true);
+function mostrarMensaje(texto, esExito, elemento) {
+  const destino = elemento || loginMensaje;
+  destino.textContent = texto;
+  destino.classList.toggle("ok", esExito === true);
+}
+
+function mostrarVista(cual) {
+  vistaEntrar.hidden = cual !== "entrar";
+  vistaCrear.hidden = cual !== "crear";
+  mostrarMensaje("", false);
+  mostrarMensaje("", false, regMensaje);
 }
 
 // ---- Subir y bajar datos ----
@@ -67,9 +82,17 @@ async function sincronizar() {
     return;
   }
 
-  // Primera vez con esta cuenta: subimos lo que ya tienes en este aparato
+  // Cuenta nueva (todavía no tiene nada en la nube): empieza desde cero
   if (respuesta.data === null) {
+    rutinas.splice(0, rutinas.length, null, null, null, null, null, null, null);
+    sesiones = [];
+    guardarRutinasLocal();
+    guardarSesionesLocal();
+    localStorage.removeItem("entreno_en_curso");
+
     await subirDatos();
+    refrescar(hoy);
+    dibujarProgreso();
     return;
   }
 
@@ -109,6 +132,7 @@ nube.auth.onAuthStateChange(function (evento, sesion) {
   }
 });
 
+// ---- Iniciar sesión ----
 document.getElementById("login-entrar").addEventListener("click", async function () {
   const correo = loginCorreo.value.trim();
   const clave = loginClave.value;
@@ -127,26 +151,42 @@ document.getElementById("login-entrar").addEventListener("click", async function
   }
 });
 
-document.getElementById("login-crear").addEventListener("click", async function () {
-  const correo = loginCorreo.value.trim();
-  const clave = loginClave.value;
+// ---- Cambiar entre "iniciar sesión" y "crear cuenta" ----
+document.getElementById("login-crear").addEventListener("click", function () {
+  mostrarVista("crear");
+});
+
+document.getElementById("reg-volver").addEventListener("click", function () {
+  mostrarVista("entrar");
+});
+
+// ---- Crear cuenta ----
+document.getElementById("reg-crear").addEventListener("click", async function () {
+  const correo = regCorreo.value.trim();
+  const clave = regClave.value;
 
   if (correo === "" || clave.length < 6) {
-    mostrarMensaje("Escribe tu correo y una contraseña de al menos 6 caracteres", false);
+    mostrarMensaje("Escribe tu correo y una contraseña de al menos 6 caracteres", false, regMensaje);
     return;
   }
 
-  mostrarMensaje("Creando cuenta...", true);
+  if (clave !== regClave2.value) {
+    mostrarMensaje("Las contraseñas no coinciden", false, regMensaje);
+    return;
+  }
+
+  mostrarMensaje("Creando cuenta...", true, regMensaje);
 
   const respuesta = await nube.auth.signUp({ email: correo, password: clave });
 
   if (respuesta.error) {
-    mostrarMensaje(respuesta.error.message, false);
+    mostrarMensaje(respuesta.error.message, false, regMensaje);
   } else if (respuesta.data.session === null) {
-    mostrarMensaje("Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.", true);
+    mostrarMensaje("Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.", true, regMensaje);
   }
 });
 
+// ---- Cerrar sesión ----
 document.getElementById("btn-salir").addEventListener("click", async function () {
   if (!confirm("¿Cerrar sesión?")) {
     return;
