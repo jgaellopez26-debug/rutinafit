@@ -10,21 +10,38 @@
 </head>
 <body>
   <div id="login" hidden>
-    <div class="login tarjeta__caja">
-      <img src="icon-192.png" alt="RutinaFit" class="login__logo">
-      <h1>RutinaFit</h1>
-      <p class="gris">Inicia sesion para guardar tus rutinas en la nube</p>
+  <div class="tarjeta login__caja">
+    <img src="icon-192.png" alt="RutinaFit" class="login__logo">
+    <h1>RutinaFit</h1>
 
-      <input type="email" id="login-correo" placeholder="correo" autocomplete="email">
-      <input type="password" id="login-clave" placeholder="Contraseña(minimo 6 caracteres)" autocomplete="current-password">
+    <div id="vista-entrar">
+      <p class="gris">Inicia sesión para guardar tus rutinas en la nube.</p>
 
-      <button id="login-entrar">Iniciar sesion</button>
+      <input type="email" id="login-correo" placeholder="Correo" autocomplete="email">
+      <input type="password" id="login-clave" placeholder="Contraseña (mínimo 6)" autocomplete="current-password">
+
+      <button id="login-entrar">Iniciar sesión</button>
       <button class="contorno" id="login-crear">Crear cuenta</button>
 
-      <p class="login-mensaje" id="login-mensaje"></p>
+      <p class="login__mensaje" id="login-mensaje"></p>
+    </div>
+
+    <div id="vista-crear" hidden>
+      <p class="gris">Crea tu cuenta para guardar tus rutinas en la nube.</p>
+
+      <input type="email" id="reg-correo" placeholder="Correo" autocomplete="email">
+      <input type="password" id="reg-clave" placeholder="Contraseña (mínimo 6)" autocomplete="new-password">
+      <input type="password" id="reg-clave2" placeholder="Repite la contraseña" autocomplete="new-password">
+
+      <button id="reg-crear">Crear cuenta</button>
+      <button class="contorno" id="reg-volver">Ya tengo cuenta</button>
+
+      <p class="login__mensaje" id="reg-mensaje"></p>
     </div>
   </div>
-    <header class="barra">
+</div>
+
+  <header class="barra">
   <h2 id="titulo-barra">Inicio</h2>
   <div class="barra__acciones">
     <button class="barra__btn" id="btn-campana">🔔</button>
@@ -44,20 +61,20 @@
     <div class="tarjeta">
       <p class="etiqueta-t">📅 Tu semana</p>
       <div class="semana">
-        <div class="anillo"><span>4 / 5</span></div>
+        <div class="anillo" id="anillo-semana"><span id="semana-texto">0 / 0</span></div>
         <p class="gris">entrenamientos</p>
       </div>
     </div>
 
     <div class="tarjeta">
       <p class="etiqueta-t">🗓️ Próximo entrenamiento</p>
-      <h3>Pecho + Tríceps</h3>
-      <p class="gris">Hoy</p>
+      <h3 id="inicio-rutina">—</h3>
+      <p class="gris" id="inicio-dia"></p>
     </div>
 
     <div class="tarjeta">
       <p class="etiqueta-t">⏱️ Tiempo entrenado</p>
-      <h3>2h 35min</h3>
+      <h3 id="semana-tiempo">0 min</h3>
       <p class="gris">esta semana</p>
     </div>
   </div>
@@ -67,10 +84,10 @@
       <span class="racha__fuego">🔥</span>
       <div>
         <p class="gris">Racha de constancia</p>
-        <h3>7 días</h3>
+        <h3 id="inicio-racha">0 días</h3>
       </div>
     </div>
-    <button>▶ Comenzar entrenamiento</button>
+    <button id="btn-comenzar">▶ Comenzar entrenamiento</button>
   </div>
 
   <div class="tarjeta banner">🏆 ¡Sigue así! Estás más cerca de tus objetivos.</div>
@@ -130,81 +147,102 @@
 
     <section id="progreso">
   <div class="progreso-top">
+    <button class="contorno" id="btn-registrar">+ Registrar</button>
     <select id="rango">
-      <option>Últimos 7 días</option>
-      <option selected>Últimos 30 días</option>
-      <option>Últimos 90 días</option>
+      <option value="7">Últimos 7 días</option>
+      <option value="30" selected>Últimos 30 días</option>
+      <option value="90">Últimos 90 días</option>
     </select>
   </div>
 
-  <div class="fila fila--dos">
-    <div class="tarjeta stat">
-      <div>
-        <p class="etiqueta-t">🗓️ Entrenamientos totales</p>
-        <h3 class="grande">16</h3>
-        <p class="subida">▲ +14%</p>
-      </div>
-      <div class="mini barras" id="mini-barras"></div>
-    </div>
-
-    <div class="tarjeta stat">
-      <div>
-        <p class="etiqueta-t">⏱️ Tiempo entrenado</p>
-        <h3 class="grande">12.5 h</h3>
-        <p class="subida">▲ +20%</p>
-      </div>
-      <div class="mini" id="mini-linea"></div>
-    </div>
-  </div>
-
-  <div class="fila fila--ancha">
-    <div class="tarjeta">
-      <p class="etiqueta-t">Tu evolución de peso (press banca)</p>
-      <div id="grafica-peso"></div>
-    </div>
-
-    <div class="tarjeta">
-      <p class="etiqueta-t">🏆 Récords personales</p>
-      <div class="record"><span>Press de banca</span><strong>100 kg</strong></div>
-      <div class="record"><span>Sentadilla</span><strong>140 kg</strong></div>
-      <div class="record"><span>Peso muerto</span><strong>160 kg</strong></div>
-    </div>
-  </div>
-
-  <div class="fila fila--ancha">
-    <div class="tarjeta">
-      <p class="etiqueta-t">Calendario de actividad</p>
-      <div class="calendario" id="calendario"></div>
-    </div>
-
-    <div class="tarjeta">
-      <p class="etiqueta-t">Tus logros</p>
-      <div class="logro">
-        <span class="logro__icono">🛡️</span>
+  <div id="panel-progreso">
+    <div class="fila fila--dos">
+      <div class="tarjeta stat">
         <div>
-          <h3>Constante</h3>
-          <p class="gris">Entrena 7 días seguidos</p>
+          <p class="etiqueta-t">🗓️ Entrenamientos totales</p>
+          <h3 class="grande" id="total-entrenos">0</h3>
+          <p class="subida" id="cambio-entrenos"></p>
         </div>
+        <div class="mini barras" id="mini-barras"></div>
       </div>
+
+      <div class="tarjeta stat">
+        <div>
+          <p class="etiqueta-t">⏱️ Tiempo entrenado</p>
+          <h3 class="grande" id="total-tiempo">0 min</h3>
+          <p class="subida" id="cambio-tiempo"></p>
+        </div>
+        <div class="mini" id="mini-linea"></div>
+      </div>
+    </div>
+
+    <div class="fila fila--ancha">
+      <div class="tarjeta">
+        <p class="etiqueta-t">Tu evolución de peso</p>
+        <select id="sel-ejercicio"></select>
+        <div id="grafica-peso"></div>
+      </div>
+
+      <div class="tarjeta">
+        <p class="etiqueta-t">🏆 Récords personales</p>
+        <div id="records"></div>
+      </div>
+    </div>
+
+    <div class="fila fila--ancha">
+      <div class="tarjeta">
+        <p class="etiqueta-t">Calendario de actividad</p>
+        <div class="calendario" id="calendario"></div>
+      </div>
+
+      <div class="tarjeta">
+        <p class="etiqueta-t">Tus logros</p>
+        <div class="logro" id="logro"></div>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <p class="etiqueta-t">Historial</p>
+      <div id="historial"></div>
+    </div>
+  </div>
+
+  <div class="tarjeta" id="form-sesion" hidden>
+    <h2>Registrar entrenamiento</h2>
+
+    <label>Fecha</label>
+    <input type="date" id="fs-fecha">
+
+    <label>Duración (minutos)</label>
+    <input type="number" id="fs-minutos" placeholder="Ej. 60">
+
+    <p class="etiqueta-t">EJERCICIOS</p>
+    <div id="fs-lista"></div>
+
+    <button class="contorno" id="fs-agregar">+ Agregar ejercicio</button>
+
+    <div class="acciones">
+      <button id="fs-guardar">Guardar</button>
+      <button class="contorno" id="fs-cancelar">Cancelar</button>
     </div>
   </div>
 </section>
 
-    <!-- PERFIL -->
     <section id="perfil">
-      <h1>Perfil</h1>
-      <div class="tarjeta">
-        <p class="etiqueta-t">Cuenta</p>
-        <div class="tarjeta">
-          <p class="etiqueta-t">NOTIFICACIONES</p>
-          <p class="gris" id="push-estado">Recibe un aviso para que no se te olvide entrenar</p>
-          <button id="btn-push">🔔Activar Notificaciones</button>
-        </div> 
-        <p id="perfil-correo">-</p>
-        <button class="peligro" id="btn-salir">Cerrar sesion</button>
-      </div>
-    </section>
-    
+  <h1>Perfil</h1>
+
+  <div class="tarjeta">
+    <p class="etiqueta-t">CUENTA</p>
+    <p id="perfil-correo">—</p>
+    <button class="peligro" id="btn-salir">Cerrar sesión</button>
+  </div>
+
+  <div class="tarjeta">
+    <p class="etiqueta-t">NOTIFICACIONES</p>
+    <p class="gris" id="push-estado">Recibe un aviso para que no se te pase entrenar.</p>
+    <button id="btn-push">🔔 Activar notificaciones</button>
+  </div>
+</section>
     </main>
 
   <!-- MENÚ -->
@@ -232,7 +270,7 @@
     <span class="icono">👑</span>
     <div class="texto">
       <p>Tu racha</p>
-      <strong>7 días</strong>
+      <strong id="menu-racha">0 días</strong>
     </div>
   </div>
 
@@ -242,9 +280,9 @@
   </a>
 </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
   <script src="auth.js"></script>
   <script src="push.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
