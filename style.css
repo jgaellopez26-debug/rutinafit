@@ -678,3 +678,61 @@ select {
 .login__mensaje.ok {
   color: #4ADE80;
 }
+/* PROGRESO: extras */
+.progreso-top {
+  gap: 10px;
+  align-items: center;
+}
+
+.progreso-top button {
+  margin-top: 0;
+  padding: 10px 14px;
+}
+
+#sel-ejercicio {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.subida.baja {
+  color: #FF5C5C;
+}
+
+.logro__icono.apagado {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.sesion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2A3236;
+}
+
+.sesion:last-child {
+  border-bottom: none;
+}
+
+#form-sesion label {
+  display: block;
+  color: #8A9499;
+  font-size: 0.85rem;
+  margin: 14px 0 6px;
+}
+
+#form-sesion input {
+  width: 100%;
+  min-width: 0;
+}
+
+.fila-ejercicio input {
+  min-width: 0;
+}
+
+.fila-ejercicio .f-kg,
+.fila-ejercicio .f-reps {
+  flex: 1;
+}
